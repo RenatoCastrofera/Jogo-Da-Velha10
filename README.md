@@ -9,29 +9,25 @@
         body { background-color: #111827; font-family: 'Inter', sans-serif; }
         .cell { transition: all 0.2s ease; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .cell:hover { background-color: #374151; }
-        .board-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+        .board-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
     </style>
 </head>
-<body class="text-white flex flex-col items-center justify-center min-h-screen p-4">
+<body class="text-white flex flex-col items-center min-h-screen p-4">
 
-    <div id="ad-container" class="mb-6 w-full max-w-[320px] h-[250px] bg-gray-800 rounded-lg flex items-center justify-center border border-gray-700 overflow-hidden">
-        <script type="text/javascript" src="https://www.profitabledisplaynetwork.com/5935670?format=300x250"></script>
-    </div>
-
-    <h1 class="text-3xl font-bold mb-4 text-blue-400">Jogo da Velha</h1>
+    <h1 class="text-3xl font-bold mb-6 text-blue-400 mt-4">Jogo da Velha</h1>
     
     <div class="flex flex-col gap-3 mb-6 w-full max-w-[320px]">
         <div class="flex gap-2">
             <input type="text" id="p1" placeholder="Jogador 1" class="bg-gray-700 p-2 rounded text-white flex-1 border border-gray-600">
             <input type="text" id="p2" placeholder="Jogador 2" class="bg-gray-700 p-2 rounded text-white flex-1 border border-gray-600">
         </div>
-        <label class="flex items-center gap-2 cursor-pointer">
+        <label class="flex items-center gap-2 cursor-pointer bg-gray-800 p-3 rounded-lg border border-gray-700">
             <input type="checkbox" id="modeToggle" class="w-5 h-5">
-            <span>Jogar contra o Computador</span>
+            <span>Jogar contra Computador</span>
         </label>
     </div>
 
-    <div id="placar" class="text-lg mb-6 font-semibold text-gray-400">X: 0 | O: 0</div>
+    <div id="placar" class="text-lg mb-4 font-semibold text-gray-400">X: 0 | O: 0</div>
 
     <div id="board" class="board-grid bg-gray-800 p-4 rounded-xl shadow-2xl w-full max-w-[320px]">
         <button class="cell w-20 h-20 bg-gray-700 rounded-lg text-4xl font-bold" onclick="play(0)"></button>
@@ -45,7 +41,11 @@
         <button class="cell w-20 h-20 bg-gray-700 rounded-lg text-4xl font-bold" onclick="play(8)"></button>
     </div>
     
-    <button onclick="resetGame()" class="mt-8 px-8 py-3 bg-blue-600 rounded-full font-bold hover:bg-blue-500 transition shadow-lg">Reiniciar Partida</button>
+    <button onclick="resetGame()" class="mt-6 px-8 py-3 bg-blue-600 rounded-full font-bold hover:bg-blue-500 transition shadow-lg">Reiniciar Partida</button>
+
+    <div id="ad-container" class="mt-8 w-full max-w-[320px] min-h-[250px] bg-gray-800 rounded-lg flex items-center justify-center border border-gray-700 overflow-hidden">
+        <script type="text/javascript" src="https://www.profitabledisplaynetwork.com/5935670?format=300x250"></script>
+    </div>
 
     <script>
         let board = ["", "", "", "", "", "", "", "", ""];
