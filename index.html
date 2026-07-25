@@ -8,15 +8,15 @@
 </head>
 <body class="bg-slate-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
 
-    <h1 class="text-3xl font-bold mb-4">Jogo da Velha</h1>
+    <h1 class="text-3xl font-black mb-6 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">JOGO DA VELHA</h1>
     
-    <div class="flex gap-8 mb-6 text-xl">
+    <div class="flex gap-8 mb-6 text-xl bg-slate-800 px-6 py-3 rounded-xl border border-slate-700">
         <p>X: <span id="scoreX" class="font-bold text-cyan-400">0</span></p>
         <p>O: <span id="scoreO" class="font-bold text-rose-400">0</span></p>
     </div>
 
-    <div id="board" class="grid grid-cols-3 gap-2 w-full max-w-[300px]">
-        <!-- Criado via JS -->
+    <div id="board" class="grid grid-cols-3 gap-3 w-full max-w-[320px]">
+        <!-- JS injeta os botões aqui -->
     </div>
 
     <script>
@@ -29,7 +29,9 @@
             boardEl.innerHTML = "";
             board.forEach((val, i) => {
                 const btn = document.createElement("button");
-                btn.className = "h-24 bg-slate-800 rounded-lg text-4xl font-bold flex items-center justify-center hover:bg-slate-700 transition";
+                // Adicionamos classes de cor baseadas no jogador
+                const colorClass = val === "X" ? "text-cyan-400" : "text-rose-400";
+                btn.className = `h-24 bg-slate-800 rounded-xl text-4xl font-black flex items-center justify-center hover:bg-slate-700 transition shadow-lg border border-slate-700 ${colorClass}`;
                 btn.innerText = val;
                 btn.onclick = () => handleMove(i);
                 boardEl.appendChild(btn);
@@ -52,6 +54,7 @@
                     scores[board[a]]++;
                     document.getElementById("score" + board[a]).innerText = scores[board[a]];
                     reset();
+                    return;
                 }
             }
             if(!board.includes("")) { alert("Empate!"); reset(); }
