@@ -6,17 +6,9 @@
     <title>Jogo da Velha Profissional</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .cell {
-            transition: all 0.2s ease-in-out;
-            cursor: pointer;
-        }
-        .cell:hover:not(.taken) {
-            background-color: #f3f4f6;
-        }
-        @keyframes pop {
-            0% { transform: scale(0.8); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        .cell { transition: all 0.2s ease-in-out; cursor: pointer; }
+        .cell:hover:not(.taken) { background-color: #f3f4f6; }
+        @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: pop 0.2s ease-out; }
     </style>
 </head>
@@ -46,32 +38,33 @@
             </div>
         </div>
         
-        <!-- Banner de Apoio -->
-        <div class="mb-6 flex justify-center">
-            <a href="https://beta.publishers.adsterra.com/referral/fx5atssTxC" rel="nofollow" class="hover:opacity-90 transition transform hover:scale-105 duration-200">
-                <img alt="banner" src="https://landings-cdn.adsterratech.com/referralBanners/png/300%20x%20250%20px.png" class="rounded-lg shadow-md" />
-            </a>
+        <!-- Área do Anúncio -->
+        <div id="ad-container" class="mb-6 min-h-[250px] flex justify-center items-center bg-slate-100 rounded-lg overflow-hidden border-2 border-dashed border-slate-200">
+            <script type="text/javascript">
+                atOptions = {
+                    'key' : '5935670',
+                    'format' : 'iframe',
+                    'height' : 250,
+                    'width' : 300,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/5935670/invoke.js"></script>
         </div>
         
         <div id="status" class="text-center text-lg font-semibold text-slate-600 mb-6">
             Vez de: <span id="currentPlayerLabel" class="text-blue-600">X</span>
         </div>
 
-        <div class="grid grid-cols-3 gap-3 mb-8" id="board">
-        </div>
+        <div class="grid grid-cols-3 gap-3 mb-8" id="board"></div>
 
         <div class="grid grid-cols-2 gap-3">
-            <button onclick="resetGame()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-4 rounded-xl transition duration-200">
-                Reiniciar
-            </button>
-            <button onclick="resetScore()" class="bg-red-100 hover:bg-red-200 text-red-600 font-bold py-3 px-4 rounded-xl transition duration-200">
-                Zerar Placar
-            </button>
+            <button onclick="resetGame()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-4 rounded-xl transition duration-200">Reiniciar</button>
+            <button onclick="resetScore()" class="bg-red-100 hover:bg-red-200 text-red-600 font-bold py-3 px-4 rounded-xl transition duration-200">Zerar Placar</button>
         </div>
     </div>
 
     <script>
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let board = ["", "", "", "", "", "", "", "", ""];
         let currentPlayer = "X";
         let isGameActive = true;
@@ -84,23 +77,6 @@
         const modalMessage = document.getElementById('modalMessage');
         const scoreX = document.getElementById('scoreX');
         const scoreO = document.getElementById('scoreO');
-
-        function playTone(freq, type, duration) {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + duration);
-        }
-
-        function playMoveSound() { playTone(440, 'sine', 0.1); }
-        function playWinSound() { playTone(523.25, 'square', 0.2); setTimeout(() => playTone(659.25, 'square', 0.3), 200); }
-        function playDrawSound() { playTone(200, 'sawtooth', 0.3); }
 
         function createBoard() {
             boardElement.innerHTML = '';
@@ -116,11 +92,8 @@
 
         function handleMove(index) {
             if (board[index] !== "" || !isGameActive) return;
-
-            playMoveSound();
             board[index] = currentPlayer;
             createBoard();
-            
             if (!checkWinner()) {
                 currentPlayer = currentPlayer === "X" ? "O" : "X";
                 currentPlayerLabel.textContent = currentPlayer;
@@ -129,58 +102,32 @@
         }
 
         function checkWinner() {
-            const winPatterns = [
-                [0, 1, 2], [3, 4, 5], [6, 7, 8],
-                [0, 3, 6], [1, 4, 7], [2, 5, 8],
-                [0, 4, 8], [2, 4, 6]
-            ];
-
+            const winPatterns = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
             for (let pattern of winPatterns) {
                 const [a, b, c] = pattern;
                 if (board[a] && board[a] === board[b] && board[a] === board[c]) {
                     isGameActive = false;
-                    playWinSound();
                     scores[board[a]]++;
                     updateScoreboard();
-                    showModal(`Jogador ${board[a]} venceu! 🎉`);
+                    modalTitle.textContent = "Fim de Jogo";
+                    modalMessage.textContent = `Jogador ${board[a]} venceu! 🎉`;
+                    modal.classList.remove('hidden');
                     return true;
                 }
             }
-
             if (!board.includes("")) {
                 isGameActive = false;
-                playDrawSound();
-                showModal("Empate! Ninguém venceu desta vez.");
+                modalTitle.textContent = "Fim de Jogo";
+                modalMessage.textContent = "Empate!";
+                modal.classList.remove('hidden');
                 return true;
             }
             return false;
         }
 
-        function updateScoreboard() {
-            scoreX.textContent = scores.X;
-            scoreO.textContent = scores.O;
-        }
-
-        function resetScore() {
-            scores = { X: 0, O: 0 };
-            updateScoreboard();
-        }
-
-        function showModal(message) {
-            modalTitle.textContent = "Fim de Jogo";
-            modalMessage.textContent = message;
-            modal.classList.remove('hidden');
-        }
-
-        function resetGame() {
-            board = ["", "", "", "", "", "", "", "", ""];
-            currentPlayer = "X";
-            isGameActive = true;
-            currentPlayerLabel.textContent = "X";
-            currentPlayerLabel.className = "text-blue-600";
-            modal.classList.add('hidden');
-            createBoard();
-        }
+        function updateScoreboard() { scoreX.textContent = scores.X; scoreO.textContent = scores.O; }
+        function resetScore() { scores = { X: 0, O: 0 }; updateScoreboard(); }
+        function resetGame() { board = ["", "", "", "", "", "", "", "", ""]; currentPlayer = "X"; isGameActive = true; currentPlayerLabel.textContent = "X"; currentPlayerLabel.className = "text-blue-600"; modal.classList.add('hidden'); createBoard(); }
 
         createBoard();
     </script>
