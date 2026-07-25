@@ -92,7 +92,7 @@
             for(let r of w) {
                 if(board[r[0]] && board[r[0]]===board[r[1]] && board[r[0]]===board[r[2]]) {
                     let winnerName = (board[r[0]]==='X' ? (document.getElementById('nameX').value || 'Jogador X') : (document.getElementById('vsComputer').checked ? 'Computador' : (document.getElementById('nameO').value || 'Jogador O')));
-                    document.getElementById("message").innerText = winnerName + " Venceu!";
+                    document.getElementById("message").innerText = winnerName + " venceu!";
                     scores[board[r[0]]]++;
                     document.getElementById("score"+board[r[0]]).innerText = scores[board[r[0]]];
                     playSound(660); setTimeout(reset, 2000); return true;
@@ -118,3 +118,7 @@
     </script>
 </body>
 </html>
+```eof
+
+### Lembrete:
+Após salvar no GitHub, não se esqueça de usar uma **nova aba anônima** para testar. Como agora temos a estrutura de PWA, a primeira vez que carregar, o navegador pode tentar "cachear" esses novos arquivos. Se estiver em modo anônimo, ele buscará a versão mais recente diretamente do GitHub!
