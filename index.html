@@ -5,18 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jogo da Velha Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .animate-pop { animation: pop 0.3s ease-out; }
+    </style>
 </head>
 <body class="bg-slate-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
 
-    <h1 class="text-3xl font-black mb-6 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">JOGO DA VELHA</h1>
+    <h1 class="text-3xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">JOGO DA VELHA</h1>
     
-    <div class="flex gap-8 mb-6 text-xl bg-slate-800 px-6 py-3 rounded-xl border border-slate-700">
-        <p>X: <span id="scoreX" class="font-bold text-cyan-400">0</span></p>
-        <p>O: <span id="scoreO" class="font-bold text-rose-400">0</span></p>
+    <div class="flex flex-col items-center gap-4 mb-6">
+        <div class="flex gap-8 text-xl bg-slate-800 px-6 py-3 rounded-xl border border-slate-700">
+            <p>X: <span id="scoreX" class="font-bold text-cyan-400">0</span></p>
+            <p>O: <span id="scoreO" class="font-bold text-rose-400">0</span></p>
+        </div>
+        <label class="flex items-center gap-2 text-sm text-slate-400">
+            <input type="checkbox" id="vsComputer" class="accent-cyan-500"> Jogar contra Computador
+        </label>
     </div>
 
-    <!-- Mensagem de status -->
-    <div id="message" class="mb-4 h-10 flex items-center justify-center font-black text-2xl text-yellow-400 uppercase tracking-widest"></div>
+    <div id="message" class="mb-4 h-10 flex items-center justify-center font-black text-2xl text-yellow-400 uppercase"></div>
 
     <div id="board" class="grid grid-cols-3 gap-3 w-full max-w-[320px]"></div>
 
@@ -26,7 +34,8 @@
         let scores = { X: 0, O: 0 };
         const boardEl = document.getElementById("board");
         const msgEl = document.getElementById("message");
-        
+        const vsComp = document.getElementById("vsComputer");
+
         let audioCtx;
         function playTone(freq, duration) {
             if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -37,8 +46,7 @@
             gain.connect(audioCtx.destination);
             gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-            osc.start();
-            osc.stop(audioCtx.currentTime + duration);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
         }
 
         function createBoard() {
@@ -46,7 +54,7 @@
             board.forEach((val, i) => {
                 const btn = document.createElement("button");
                 const colorClass = val === "X" ? "text-cyan-400" : "text-rose-400";
-                btn.className = `h-24 bg-slate-800 rounded-xl text-4xl font-black flex items-center justify-center hover:bg-slate-700 transition shadow-lg border border-slate-700 ${colorClass}`;
+                btn.className = `h-24 bg-slate-800 rounded-xl text-4xl font-black flex items-center justify-center hover:bg-slate-700 transition shadow-lg border border-slate-700 ${colorClass} animate-pop`;
                 btn.innerText = val;
                 btn.onclick = () => handleMove(i);
                 boardEl.appendChild(btn);
@@ -56,11 +64,25 @@
         function handleMove(i) {
             if (board[i] !== "" || msgEl.innerText !== "") return;
             
-            playTone(400, 0.1);
-            board[i] = currentPlayer;
-            currentPlayer = currentPlayer === "X" ? "O" : "X";
+            makeMove(i, "X");
+            if (vsComp.checked && msgEl.innerText === "") {
+                setTimeout(computerMove, 500);
+            }
+        }
+
+        function makeMove(i, player) {
+            board[i] = player;
+            playTone(player === "X" ? 400 : 300, 0.1);
             createBoard();
             checkWinner();
+        }
+
+        function computerMove() {
+            let empty = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
+            if (empty.length > 0) {
+                let move = empty[Math.floor(Math.random() * empty.length)];
+                makeMove(move, "O");
+            }
         }
 
         function checkWinner() {
@@ -82,11 +104,7 @@
             }
         }
 
-        function reset() { 
-            board = Array(9).fill(""); 
-            msgEl.innerText = "";
-            createBoard(); 
-        }
+        function reset() { board = Array(9).fill(""); msgEl.innerText = ""; createBoard(); }
         createBoard();
     </script>
 </body>
