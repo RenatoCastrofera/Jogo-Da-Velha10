@@ -15,8 +15,9 @@
         <p>O: <span id="scoreO" class="font-bold text-rose-400">0</span></p>
     </div>
 
+    <div id="message" class="mb-4 h-8 font-bold text-lg text-yellow-400"></div>
+
     <div id="board" class="grid grid-cols-3 gap-3 w-full max-w-[320px]">
-        <!-- JS injeta os botões aqui -->
     </div>
 
     <script>
@@ -24,12 +25,26 @@
         let currentPlayer = "X";
         let scores = { X: 0, O: 0 };
         const boardEl = document.getElementById("board");
+        const msgEl = document.getElementById("message");
+        
+        // Configuração de Áudio
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playTone(freq, duration) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.value = freq;
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
 
         function createBoard() {
             boardEl.innerHTML = "";
             board.forEach((val, i) => {
                 const btn = document.createElement("button");
-                // Adicionamos classes de cor baseadas no jogador
                 const colorClass = val === "X" ? "text-cyan-400" : "text-rose-400";
                 btn.className = `h-24 bg-slate-800 rounded-xl text-4xl font-black flex items-center justify-center hover:bg-slate-700 transition shadow-lg border border-slate-700 ${colorClass}`;
                 btn.innerText = val;
@@ -39,7 +54,9 @@
         }
 
         function handleMove(i) {
-            if (board[i] !== "") return;
+            if (board[i] !== "" || msgEl.innerText !== "") return;
+            
+            playTone(400, 0.1); // Som de clique
             board[i] = currentPlayer;
             currentPlayer = currentPlayer === "X" ? "O" : "X";
             createBoard();
@@ -50,17 +67,26 @@
             const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
             for(let [a,b,c] of wins) {
                 if(board[a] && board[a] === board[b] && board[a] === board[c]) {
-                    alert("Jogador " + board[a] + " venceu!");
+                    playTone(600, 0.3); // Som de vitória
+                    msgEl.innerText = "Jogador " + board[a] + " venceu!";
                     scores[board[a]]++;
                     document.getElementById("score" + board[a]).innerText = scores[board[a]];
-                    reset();
+                    setTimeout(reset, 2000);
                     return;
                 }
             }
-            if(!board.includes("")) { alert("Empate!"); reset(); }
+            if(!board.includes("")) { 
+                playTone(200, 0.3); // Som de empate
+                msgEl.innerText = "Empate!"; 
+                setTimeout(reset, 2000);
+            }
         }
 
-        function reset() { board = Array(9).fill(""); createBoard(); }
+        function reset() { 
+            board = Array(9).fill(""); 
+            msgEl.innerText = "";
+            createBoard(); 
+        }
         createBoard();
     </script>
 </body>
