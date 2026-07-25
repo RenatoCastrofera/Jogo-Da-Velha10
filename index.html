@@ -20,7 +20,6 @@
             <p>O: <span id="scoreO" class="font-bold text-rose-400">0</span></p>
         </div>
         
-        <!-- Checkbox maior e sempre visível -->
         <label class="flex items-center gap-3 bg-slate-800 p-3 rounded-xl border border-slate-700 cursor-pointer w-full max-w-[320px] justify-center">
             <input type="checkbox" id="vsComputer" class="w-6 h-6 accent-cyan-500 cursor-pointer"> 
             <span class="text-lg font-bold text-slate-300">Jogar contra Computador</span>
@@ -67,32 +66,34 @@
         function handleMove(i) {
             if (board[i] !== "" || msgEl.innerText !== "") return;
             
-            // Faz o movimento do jogador atual
-            makeMove(i, currentPlayer);
-            
-            // Alterna o turno para o computador ou para o próximo jogador humano
-            if (msgEl.innerText === "") {
-                currentPlayer = currentPlayer === "X" ? "O" : "X";
-                
-                if (vsComp.checked && currentPlayer === "O") {
-                    setTimeout(computerMove, 500);
-                }
-            }
-        }
-
-        function makeMove(i, player) {
-            board[i] = player;
-            playTone(player === "X" ? 400 : 300, 0.1);
+            // 1. Executa a jogada do jogador atual
+            board[i] = currentPlayer;
+            playTone(currentPlayer === "X" ? 400 : 300, 0.1);
             createBoard();
-            checkWinner();
+            
+            // 2. Verifica se o jogo acabou antes de trocar o turno
+            if (checkWinner()) return;
+
+            // 3. Alterna o turno
+            currentPlayer = currentPlayer === "X" ? "O" : "X";
+            
+            // 4. Se o modo computador estiver ligado e agora for a vez do O, faz a jogada dele
+            if (vsComp.checked && currentPlayer === "O") {
+                setTimeout(computerMove, 500);
+            }
         }
 
         function computerMove() {
             let empty = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
             if (empty.length > 0) {
                 let move = empty[Math.floor(Math.random() * empty.length)];
-                makeMove(move, "O");
-                currentPlayer = "X"; // Devolve a vez para o humano
+                board[move] = "O";
+                playTone(300, 0.1);
+                createBoard();
+                
+                if (!checkWinner()) {
+                    currentPlayer = "X"; // Devolve a vez para o humano
+                }
             }
         }
 
@@ -105,14 +106,16 @@
                     scores[board[a]]++;
                     document.getElementById("score" + board[a]).innerText = scores[board[a]];
                     setTimeout(reset, 2000);
-                    return;
+                    return true;
                 }
             }
             if(!board.includes("")) { 
                 playTone(200, 0.5);
                 msgEl.innerText = "Empate!"; 
                 setTimeout(reset, 2000);
+                return true;
             }
+            return false;
         }
 
         function reset() { board = Array(9).fill(""); currentPlayer = "X"; msgEl.innerText = ""; createBoard(); }
