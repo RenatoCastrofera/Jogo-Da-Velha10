@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo da Velha Pro</title>
+    <title>Jogo da Velha PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #111827; font-family: 'Inter', sans-serif; }
@@ -15,18 +15,12 @@
 </head>
 <body class="text-white flex flex-col items-center min-h-screen p-4">
 
-    <h1 class="text-3xl font-bold mb-6 text-blue-400 mt-4">Jogo da Velha Pro</h1>
+    <h1 class="text-3xl font-bold mb-6 text-blue-400 mt-4">Jogo da Velha PRO</h1>
 
-    <div class="flex flex-col gap-3 mb-6 w-full max-w-[320px]">
-        <div class="flex gap-2">
-            <input type="text" id="p1" placeholder="Jogador 1 (X)" class="bg-gray-700 p-2 rounded text-white flex-1 border border-gray-600">
-            <input type="text" id="p2" placeholder="Jogador 2 (O)" class="bg-gray-700 p-2 rounded text-white flex-1 border border-gray-600">
-        </div>
-        <label class="flex items-center gap-2 cursor-pointer bg-gray-800 p-3 rounded-lg border border-gray-700">
-            <input type="checkbox" id="modeToggle" class="w-5 h-5" onchange="updateStatus()">
-            <span>Jogar contra Computador</span>
-        </label>
-    </div>
+    <label class="flex items-center gap-2 cursor-pointer bg-gray-800 p-3 rounded-lg border border-gray-700 mb-6 w-full max-w-[270px] justify-center">
+        <input type="checkbox" id="modeToggle" class="w-5 h-5" onchange="resetGame()">
+        <span>Jogar contra Computador</span>
+    </label>
 
     <div id="placar" class="text-lg mb-2 font-semibold text-gray-400">X: 0 | O: 0</div>
     <div id="status" class="text-lg mb-4 font-bold text-yellow-400 h-6 text-center"></div>
@@ -56,41 +50,43 @@
         let scoreX = 0, scoreO = 0;
         let gameActive = true;
 
-        function nameOf(player) {
-            if (player === "X") {
-                return document.getElementById('p1').value.trim() || "Jogador X";
-            }
-            if (document.getElementById('modeToggle').checked) {
-                return document.getElementById('p2').value.trim() || "Computador";
-            }
-            return document.getElementById('p2').value.trim() || "Jogador O";
+        function vsComputer() {
+            return document.getElementById('modeToggle').checked;
+        }
+
+        function labelOf(player) {
+            if (player === "O" && vsComputer()) return "Computador";
+            return player;
         }
 
         function play(index) {
-            if (board[index] === "" && gameActive) {
-                board[index] = currentPlayer;
-                render();
-                if (checkEnd()) return;
-                currentPlayer = currentPlayer === "X" ? "O" : "X";
-                updateStatus();
-                if (document.getElementById('modeToggle').checked && currentPlayer === "O") {
-                    gameActive = false;
-                    setTimeout(aiMove, 500);
-                }
+            if (!gameActive || board[index] !== "") return;
+            if (vsComputer() && currentPlayer === "O") return; // impede clique durante a vez do computador
+
+            board[index] = currentPlayer;
+            render();
+            if (checkEnd()) return;
+
+            currentPlayer = currentPlayer === "X" ? "O" : "X";
+            updateStatus();
+
+            if (vsComputer() && currentPlayer === "O" && gameActive) {
+                setTimeout(aiMove, 500);
             }
         }
 
         function aiMove() {
+            if (!gameActive) return;
             let available = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
-            if (available.length > 0) {
-                let move = available[Math.floor(Math.random() * available.length)];
-                board[move] = "O";
-                render();
-                if (checkEnd()) return;
-                currentPlayer = "X";
-                gameActive = true;
-                updateStatus();
-            }
+            if (available.length === 0) return;
+
+            let move = available[Math.floor(Math.random() * available.length)];
+            board[move] = "O";
+            render();
+            if (checkEnd()) return;
+
+            currentPlayer = "X";
+            updateStatus();
         }
 
         function render() {
@@ -112,7 +108,7 @@
                     const winner = board[c[0]];
                     winner === 'X' ? scoreX++ : scoreO++;
                     document.getElementById('placar').innerText = `X: ${scoreX} | O: ${scoreO}`;
-                    document.getElementById('status').innerText = `🏆 ${nameOf(winner)} venceu!`;
+                    document.getElementById('status').innerText = `🏆 ${labelOf(winner)} venceu!`;
                     render();
                     c.forEach(i => cells[i].classList.add('winning-cell'));
                     return true;
@@ -131,7 +127,7 @@
 
         function updateStatus() {
             if (!gameActive) return;
-            document.getElementById('status').innerText = `Vez de: ${nameOf(currentPlayer)}`;
+            document.getElementById('status').innerText = `Vez de: ${labelOf(currentPlayer)}`;
         }
 
         function resetGame() {
@@ -148,7 +144,7 @@
             document.getElementById('placar').innerText = `X: 0 | O: 0`;
         }
 
-        updateStatus();
+        resetGame();
 
         const adContainer = document.getElementById('ad-container');
         const s = document.createElement('script');
