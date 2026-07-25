@@ -1,104 +1,15 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo da Velha Pro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f172a">
-    <style>
-        @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-        .animate-pop { animation: pop 0.3s ease-out; }
-    </style>
-</head>
-<body class="bg-slate-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
-
-    <h1 class="text-2xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">JOGO DA VELHA PRO</h1>
-    
-    <div class="flex flex-col items-center gap-3 mb-6 w-full max-w-[320px]">
-        <div class="flex gap-2 w-full">
-            <input type="text" id="nameX" placeholder="Jogador X" class="w-1/2 bg-slate-800 p-2 rounded-lg border border-slate-700 text-center text-cyan-400 font-bold">
-            <input type="text" id="nameO" placeholder="Jogador O" class="w-1/2 bg-slate-800 p-2 rounded-lg border border-slate-700 text-center text-rose-400 font-bold">
-        </div>
-        <div class="flex gap-8 text-xl bg-slate-800 px-6 py-2 rounded-xl border border-slate-700">
-            <p>X: <span id="scoreX" class="font-bold text-cyan-400">0</span></p>
-            <p>O: <span id="scoreO" class="font-bold text-rose-400">0</span></p>
-        </div>
-        <label class="flex items-center gap-2 text-sm text-slate-400">
-            <input type="checkbox" id="vsComputer" class="w-5 h-5 accent-cyan-500"> vs Computador
-        </label>
-    </div>
-
-    <div id="message" class="mb-4 h-8 font-bold text-lg text-yellow-400 uppercase"></div>
-    <div id="board" class="grid grid-cols-3 gap-3 w-full max-w-[320px]"></div>
-
-    <script>
-        let board = Array(9).fill("");
-        let currentPlayer = "X";
-        let scores = { X: 0, O: 0 };
-        const boardEl = document.getElementById("board");
-        const msgEl = document.getElementById("message");
-        const vsComp = document.getElementById("vsComputer");
-
-        function getBestMove() {
-            // IA simples: Tenta vencer, depois tenta bloquear, depois aleatório
-            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-            for(let p of ['O', 'X']) {
-                for(let [a,b,c] of wins) {
-                    if(board[a]===p && board[b]===p && board[c]==="") return c;
-                    if(board[a]===p && board[c]===p && board[b]==="") return b;
-                    if(board[b]===p && board[c]===p && board[a]==="") return a;
-                }
-            }
-            let empty = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
-            return empty[Math.floor(Math.random() * empty.length)];
-        }
-
-        function handleMove(i) {
-            if (board[i] !== "" || msgEl.innerText !== "") return;
-            board[i] = currentPlayer;
-            createBoard();
-            if(!checkWinner()) {
-                currentPlayer = currentPlayer === "X" ? "O" : "X";
-                if(vsComp.checked && currentPlayer === "O") setTimeout(computerTurn, 500);
-            }
-        }
-
-        function computerTurn() {
-            let move = getBestMove();
-            board[move] = "O";
-            createBoard();
-            if(!checkWinner()) currentPlayer = "X";
-        }
-
-        function checkWinner() {
-            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-            for(let [a,b,c] of wins) {
-                if(board[a] && board[a] === board[b] && board[a] === board[c]) {
-                    let name = document.getElementById(board[a]==='X' ? 'nameX' : 'nameO').value || board[a];
-                    msgEl.innerText = name + " venceu!";
-                    scores[board[a]]++;
-                    document.getElementById("score"+board[a]).innerText = scores[board[a]];
-                    setTimeout(reset, 2000); return true;
-                }
-            }
-            if(!board.includes("")) { msgEl.innerText = "Empate!"; setTimeout(reset, 2000); return true; }
-            return false;
-        }
-
-        function reset() { board = Array(9).fill(""); currentPlayer = "X"; msgEl.innerText = ""; createBoard(); }
-        function createBoard() {
-            boardEl.innerHTML = "";
-            board.forEach((val, i) => {
-                const btn = document.createElement("button");
-                btn.className = `h-24 bg-slate-800 rounded-xl text-4xl font-black ${val==='X'?'text-cyan-400':'text-rose-400'} animate-pop`;
-                btn.innerText = val;
-                btn.onclick = () => handleMove(i);
-                boardEl.appendChild(btn);
-            });
-        }
-        createBoard();
-    </script>
-</body>
-</html>
+{
+  "name": "Jogo da Velha Pro",
+  "short_name": "VelhaPro",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2072/2072130.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
