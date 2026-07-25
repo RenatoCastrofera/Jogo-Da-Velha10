@@ -15,12 +15,17 @@
 <body class="text-white flex flex-col items-center justify-center min-h-screen p-4">
 
     <div id="ad-container" class="mb-6 w-full max-w-[320px] h-[250px] bg-gray-800 rounded-lg flex items-center justify-center border border-gray-700">
-        <!-- SEU SCRIPT DA ADSTERRA VAI AQUI -->
         <script type="text/javascript" src="https://www.profitabledisplaynetwork.com/5935670?format=300x250"></script>
     </div>
 
     <h1 class="text-3xl font-bold mb-2 text-blue-400">Jogo da Velha</h1>
-    <div id="placar" class="text-lg mb-6 font-semibold text-gray-400">Jogador (X): 0 | Computador (O): 0</div>
+    
+    <div class="flex gap-4 mb-4">
+        <input type="text" id="p1" placeholder="Nome Jogador" class="bg-gray-700 p-2 rounded text-white w-32">
+        <input type="text" id="p2" placeholder="Computador" value="Computador" class="bg-gray-700 p-2 rounded text-white w-32" disabled>
+    </div>
+
+    <div id="placar" class="text-lg mb-6 font-semibold text-gray-400">X: 0 | O: 0</div>
 
     <div id="board" class="board-grid bg-gray-800 p-4 rounded-xl shadow-2xl w-full max-w-[320px]">
         <button class="cell w-20 h-20 bg-gray-700 rounded-lg text-4xl font-bold" onclick="play(0)"></button>
@@ -78,7 +83,7 @@
                 if (board[w[0]] && board[w[0]] === board[w[1]] && board[w[0]] === board[w[2]]) {
                     gameActive = false;
                     board[w[0]] === human ? scoreX++ : scoreO++;
-                    document.getElementById('placar').innerText = `Jogador (X): ${scoreX} | Computador (O): ${scoreO}`;
+                    document.getElementById('placar').innerText = `X: ${scoreX} | O: ${scoreO}`;
                     return true;
                 }
             }
