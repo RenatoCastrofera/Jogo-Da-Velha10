@@ -14,15 +14,21 @@
 </head>
 <body class="text-white flex flex-col items-center justify-center min-h-screen p-4">
 
-    <div id="ad-container" class="mb-6 w-full max-w-[320px] h-[250px] bg-gray-800 rounded-lg flex items-center justify-center border border-gray-700">
+    <div id="ad-container" class="mb-6 w-full max-w-[320px] h-[250px] bg-gray-800 rounded-lg flex items-center justify-center border border-gray-700 overflow-hidden">
         <script type="text/javascript" src="https://www.profitabledisplaynetwork.com/5935670?format=300x250"></script>
     </div>
 
-    <h1 class="text-3xl font-bold mb-2 text-blue-400">Jogo da Velha</h1>
+    <h1 class="text-3xl font-bold mb-4 text-blue-400">Jogo da Velha</h1>
     
-    <div class="flex gap-4 mb-4">
-        <input type="text" id="p1" placeholder="Nome Jogador" class="bg-gray-700 p-2 rounded text-white w-32">
-        <input type="text" id="p2" placeholder="Computador" value="Computador" class="bg-gray-700 p-2 rounded text-white w-32" disabled>
+    <div class="flex flex-col gap-3 mb-6 w-full max-w-[320px]">
+        <div class="flex gap-2">
+            <input type="text" id="p1" placeholder="Jogador 1" class="bg-gray-700 p-2 rounded text-white flex-1 border border-gray-600">
+            <input type="text" id="p2" placeholder="Jogador 2" class="bg-gray-700 p-2 rounded text-white flex-1 border border-gray-600">
+        </div>
+        <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="modeToggle" class="w-5 h-5">
+            <span>Jogar contra o Computador</span>
+        </label>
     </div>
 
     <div id="placar" class="text-lg mb-6 font-semibold text-gray-400">X: 0 | O: 0</div>
@@ -39,22 +45,26 @@
         <button class="cell w-20 h-20 bg-gray-700 rounded-lg text-4xl font-bold" onclick="play(8)"></button>
     </div>
     
-    <button onclick="resetGame()" class="mt-8 px-8 py-3 bg-blue-600 rounded-full font-bold hover:bg-blue-500 transition">Reiniciar Partida</button>
+    <button onclick="resetGame()" class="mt-8 px-8 py-3 bg-blue-600 rounded-full font-bold hover:bg-blue-500 transition shadow-lg">Reiniciar Partida</button>
 
     <script>
         let board = ["", "", "", "", "", "", "", "", ""];
-        let human = "X";
-        let ai = "O";
+        let currentPlayer = "X";
         let scoreX = 0, scoreO = 0;
         let gameActive = true;
 
         function play(index) {
             if (board[index] === "" && gameActive) {
-                board[index] = human;
+                board[index] = currentPlayer;
                 updateBoard();
                 if (checkWinner()) return;
-                gameActive = false;
-                setTimeout(aiMove, 500);
+                
+                currentPlayer = currentPlayer === "X" ? "O" : "X";
+                
+                if (document.getElementById('modeToggle').checked && currentPlayer === "O") {
+                    gameActive = false;
+                    setTimeout(aiMove, 500);
+                }
             }
         }
 
@@ -62,10 +72,12 @@
             let available = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
             if (available.length > 0) {
                 let move = available[Math.floor(Math.random() * available.length)];
-                board[move] = ai;
+                board[move] = "O";
                 updateBoard();
-                checkWinner();
-                gameActive = true;
+                if (!checkWinner()) {
+                    currentPlayer = "X";
+                    gameActive = true;
+                }
             }
         }
 
@@ -82,7 +94,7 @@
             for (let w of wins) {
                 if (board[w[0]] && board[w[0]] === board[w[1]] && board[w[0]] === board[w[2]]) {
                     gameActive = false;
-                    board[w[0]] === human ? scoreX++ : scoreO++;
+                    board[w[0]] === 'X' ? scoreX++ : scoreO++;
                     document.getElementById('placar').innerText = `X: ${scoreX} | O: ${scoreO}`;
                     return true;
                 }
@@ -94,6 +106,7 @@
         function resetGame() {
             board = ["", "", "", "", "", "", "", "", ""];
             gameActive = true;
+            currentPlayer = "X";
             updateBoard();
         }
     </script>
