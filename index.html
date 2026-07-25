@@ -1,15 +1,92 @@
-{
-  "name": "Jogo da Velha Pro",
-  "short_name": "VelhaPro",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
-  "icons": [
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/2072/2072130.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    }
-  ]
-}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Velha Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .animate-pop { animation: pop 0.3s ease-out; }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
+    <h1 class="text-2xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">JOGO DA VELHA PRO</h1>
+    <div class="flex flex-col items-center gap-3 mb-6 w-full max-w-[320px]">
+        <div class="flex gap-2 w-full">
+            <input type="text" id="nameX" placeholder="Jogador X" class="w-1/2 bg-slate-800 p-2 rounded-lg border border-slate-700 text-center text-cyan-400 font-bold">
+            <input type="text" id="nameO" placeholder="Computador" disabled class="w-1/2 bg-slate-800 p-2 rounded-lg border border-slate-700 text-center text-rose-400 font-bold opacity-60">
+        </div>
+        <div class="flex gap-8 text-xl bg-slate-800 px-6 py-2 rounded-xl border border-slate-700">
+            <p>X: <span id="scoreX" class="font-bold text-cyan-400">0</span></p>
+            <p>O: <span id="scoreO" class="font-bold text-rose-400">0</span></p>
+        </div>
+    </div>
+    <div id="message" class="mb-4 h-8 font-bold text-lg text-yellow-400 uppercase"></div>
+    <div id="board" class="grid grid-cols-3 gap-3 w-full max-w-[320px]"></div>
+
+    <script>
+        let board = Array(9).fill("");
+        const boardEl = document.getElementById("board");
+        const msgEl = document.getElementById("message");
+
+        function minimax(b, p) {
+            const empty = b.map((v, i) => v === "" ? i : null).filter(v => v !== null);
+            if (checkWinnerForMinimax(b, 'X')) return { score: -10 };
+            if (checkWinnerForMinimax(b, 'O')) return { score: 10 };
+            if (empty.length === 0) return { score: 0 };
+            let moves = [];
+            for (let i of empty) {
+                b[i] = p;
+                let s = minimax(b, p === 'O' ? 'X' : 'O').score;
+                b[i] = "";
+                moves.push({index: i, score: s});
+            }
+            return p === 'O' ? moves.sort((a,b)=>b.score-a.score)[0] : moves.sort((a,b)=>a.score-b.score)[0];
+        }
+
+        function checkWinnerForMinimax(b, p) {
+            const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            return w.some(r => b[r[0]]===p && b[r[1]]===p && b[r[2]]===p);
+        }
+
+        function handleMove(i) {
+            if (board[i] !== "" || msgEl.innerText !== "") return;
+            board[i] = "X";
+            createBoard();
+            if(!checkWinner()) setTimeout(() => {
+                let m = minimax(board, 'O').index;
+                if(m !== undefined) board[m] = "O";
+                createBoard();
+                checkWinner();
+            }, 500);
+        }
+
+        function checkWinner() {
+            const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            for(let r of w) {
+                if(board[r[0]] && board[r[0]]===board[r[1]] && board[r[0]]===board[r[2]]) {
+                    msgEl.innerText = (board[r[0]]==='X' ? "Você venceu!" : "Computador venceu!");
+                    setTimeout(reset, 2000); return true;
+                }
+            }
+            if(!board.includes("")) { msgEl.innerText = "Empate!"; setTimeout(reset, 2000); return true; }
+            return false;
+        }
+
+        function reset() { board = Array(9).fill(""); msgEl.innerText = ""; createBoard(); }
+        function createBoard() {
+            boardEl.innerHTML = "";
+            board.forEach((v, i) => {
+                const b = document.createElement("button");
+                b.className = "h-24 bg-slate-800 rounded-xl text-4xl font-black " + (v==='X'?'text-cyan-400':'text-rose-400') + " animate-pop";
+                b.innerText = v;
+                b.onclick = () => handleMove(i);
+                boardEl.appendChild(b);
+            });
+        }
+        createBoard();
+    </script>
+</body>
+</html>
