@@ -1,218 +1,64 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head><script type='text/javascript' nonce='dZWhzajRalnmmWSMYVP6hw==' src='https://contribution.usercontent.google.com/ZIbll2-RxeRgGsIsH3kF4O5jUV32a_Z17mUkrylP1UoeaPrm2_UimEJGIw0XmWSPskdTFGwpR9esCO1TFPmTySdtXOp5VIkDJjg6bDlnztG0zX1Y3XJ7w_v2YGOBncE5r-b6oaXqCAPgXOgyLuCWQ82TyroZqaUfietjFv1pRScYQNKyRvz95HSxm191ldM35SZFpgvosDZ3Cybmff9onhT0BFJbfJZlWRGj2D9BtmhUrUhgHsc5rlb2KuPBUAK9Ql38v6X05O3srhik0MEDcsIDbZxcBHOIrQy3oCQnq57U6pAhijGrwz9LL1CkHvu0aR8z1eC-gjqMPJ2quQRU4UY5JeZGVRDwUhOWVolKVjsnAa9dHOBfwHMs43UskIGCyEgdC2Ck8HY_yRn_JRZV8boA7e0CNp1bnBIUFqCIPhaotF-rHqH0LSb2SHA-ryKdpAJFghhpCJ0nSEu9ByaKIQCEnaYMCeV9atRGuXrktZBLCwGHct9_tryGji3P_u1lDFkEBfU9YbbGKbAOIRr5bq0teYj_3dgAWECsYhTl6YnBW8qKbHGPdPj6z6gcoAHx-cMgzwpHyXADiANG9zK7fL20mbAHsf_ST8BqDLVdZs_Y9PZi7tYD2t329bZ8MGdwUfJwxVuFsxkdy5Y4fuXkl-LgFWpQ1PL_gUfEgQzfpmoc_lP140Cue-yf_Tiptxfbtc-V1R6IpbV8yvn_qw'></script>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jogo da Velha Pro</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style>
-        @keyframes pop {
-            0% { transform: scale(0.8); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .animate-pop {
-            animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-center p-4 font-sans select-none">
+<body class="bg-slate-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
 
-    <!-- Cabeçalho e Placar -->
-    <div class="mb-6 text-center">
-        <h1 class="text-3xl md:text-4xl font-extrabold tracking-wider bg-gradient-to-r from-cyan-400 to-indigo-500 bg-clip-text text-transparent mb-4">
-            JOGO DA VELHA
-        </h1>
-        
-        <!-- Placar -->
-        <div class="flex items-center justify-center gap-6 bg-slate-800/80 border border-slate-700/60 px-6 py-3 rounded-2xl shadow-lg backdrop-blur-md">
-            <div class="flex flex-col items-center">
-                <span class="text-xs font-semibold text-cyan-400 tracking-wider">JOGADOR X</span>
-                <span id="scoreX" class="text-2xl font-bold">0</span>
-            </div>
-            <div class="h-8 w-px bg-slate-700"></div>
-            <div class="flex flex-col items-center">
-                <span class="text-xs font-semibold text-rose-400 tracking-wider">JOGADOR O</span>
-                <span id="scoreO" class="text-2xl font-bold">0</span>
-            </div>
-        </div>
+    <h1 class="text-3xl font-bold mb-4">Jogo da Velha</h1>
+    
+    <div class="flex gap-8 mb-6 text-xl">
+        <p>X: <span id="scoreX" class="font-bold text-cyan-400">0</span></p>
+        <p>O: <span id="scoreO" class="font-bold text-rose-400">0</span></p>
     </div>
 
-    <!-- Turno Atual -->
-    <div id="turnIndicator" class="mb-4 text-sm font-medium tracking-wide text-slate-400 bg-slate-800/50 px-4 py-1.5 rounded-full border border-slate-700/40">
-        Vez do jogador: <span id="currentPlayer" class="text-cyan-400 font-bold">X</span>
-    </div>
-
-    <!-- Tabuleiro -->
-    <div class="grid grid-cols-3 gap-3 bg-slate-800/90 p-4 rounded-3xl shadow-2xl border border-slate-700/50 backdrop-blur-md max-w-xs w-full aspect-square">
-        <button onclick="makeMove(0)" class="cell bg-slate-700/60 hover:bg-slate-700 rounded-2xl flex items-center justify-center text-5xl font-black transition-all duration-200 active:scale-95 shadow-inner cursor-pointer" data-index="0"></button>
-        <button onclick="makeMove(1)" class="cell bg-slate-700/60 hover:bg-slate-700 rounded-2xl flex items-center justify-center text-5xl font-black transition-all duration-200 active:scale-95 shadow-inner cursor-pointer" data-index="1"></button>
-        <button onclick="makeMove(2)" class="cell bg-slate-700/60 hover:bg-slate-700 rounded-2xl flex items-center justify-center text-5xl font-black transition-all duration-200 active:scale-95 shadow-inner cursor-pointer" data-index="2"></button>
-        <button onclick="makeMove(3)" class="cell bg-slate-700/60 hover:bg-slate-700 rounded-2xl flex items-center justify-center text-5xl font-black transition-all duration-200 active:scale-95 shadow-inner cursor-pointer" data-index="3"></button>
-        <button onclick="makeMove(4)" class="cell bg-slate-700/60 hover:bg-slate-700 rounded-2xl flex items-center justify-center text-5xl font-black transition-all duration-200 active:scale-95 shadow-inner cursor-pointer" data-index="4"></button>
-        <button onclick="makeMove(5)" class="cell bg-slate-700/60 hover:bg-slate-700 rounded-2xl flex items-center justify-center text-5xl font-black transition-all duration-200 active:scale-95 shadow-inner cursor-pointer" data-index="5"></button>
-        <button onclick="makeMove(6)" class="cell bg-slate-700/60 hover:bg-slate-700 rounded-2xl flex items-center justify-center text-5xl font-black transition-all duration-200 active:scale-95 shadow-inner cursor-pointer" data-index="6"></button>
-        <button onclick="makeMove(7)" class="cell bg-slate-700/60 hover:bg-slate-700 rounded-2xl flex items-center justify-center text-5xl font-black transition-all duration-200 active:scale-95 shadow-inner cursor-pointer" data-index="7"></button>
-        <button onclick="makeMove(8)" class="cell bg-slate-700/60 hover:bg-slate-700 rounded-2xl flex items-center justify-center text-5xl font-black transition-all duration-200 active:scale-95 shadow-inner cursor-pointer" data-index="8"></button>
-    </div>
-
-    <!-- Botão de Reiniciar Rápido -->
-    <button onclick="resetGame()" class="mt-6 text-xs uppercase tracking-widest text-slate-400 hover:text-slate-200 bg-slate-800 hover:bg-slate-700 px-5 py-2.5 rounded-xl border border-slate-700/60 transition-all font-semibold">
-        Reiniciar Partida
-    </button>
-
-    <!-- Modal de Vitória / Empate -->
-    <div id="modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <div class="bg-slate-900 border border-slate-700 p-6 rounded-3xl shadow-2xl max-w-sm w-full text-center animate-pop">
-            <h2 id="modalTitle" class="text-2xl font-black mb-2">Fim de Jogo!</h2>
-            <p id="modalMessage" class="text-slate-300 mb-6 text-base">O jogador X venceu a partida!</p>
-            <button onclick="closeModalAndReset()" class="w-full bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all transform active:scale-95 cursor-pointer">
-                Jogar Novamente
-            </button>
-        </div>
+    <div id="board" class="grid grid-cols-3 gap-2 w-full max-w-[300px]">
+        <!-- Criado via JS -->
     </div>
 
     <script>
-        let board = ["", "", "", "", "", "", "", "", ""];
+        let board = Array(9).fill("");
         let currentPlayer = "X";
-        let isGameActive = true;
         let scores = { X: 0, O: 0 };
+        const boardEl = document.getElementById("board");
 
-        let audioCtx = null;
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-        }
-
-        function playSound(type) {
-            try {
-                initAudio();
-                if (!audioCtx) return;
-                
-                let osc = audioCtx.createOscillator();
-                let gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-
-                let now = audioCtx.currentTime;
-
-                if (type === 'click') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(400, now);
-                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
-                    gain.gain.setValueAtTime(0.15, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
-                    osc.start(now);
-                    osc.stop(now + 0.08);
-                } else if (type === 'win') {
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(523.25, now);
-                    osc.frequency.setValueAtTime(659.25, now + 0.1);
-                    osc.frequency.setValueAtTime(783.99, now + 0.2);
-                    gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
-                    osc.start(now);
-                    osc.stop(now + 0.4);
-                } else if (type === 'draw') {
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(300, now);
-                    osc.frequency.linearRampToValueAtTime(150, now + 0.3);
-                    gain.gain.setValueAtTime(0.15, now);
-                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-                    osc.start(now);
-                    osc.stop(now + 0.3);
-                }
-            } catch(e) {}
-        }
-
-        const winningConditions = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8],
-            [0, 3, 6], [1, 4, 7], [2, 5, 8],
-            [0, 4, 8], [2, 4, 6]
-        ];
-
-        function makeMove(index) {
-            if (board[index] !== "" || !isGameActive) return;
-
-            board[index] = currentPlayer;
-            playSound('click');
-            
-            const cell = document.querySelector(`[data-index='${index}']`);
-            cell.textContent = currentPlayer;
-            cell.classList.add('animate-pop');
-            
-            if (currentPlayer === "X") {
-                cell.classList.add('text-cyan-400');
-            } else {
-                cell.classList.add('text-rose-400');
-            }
-
-            checkResult();
-        }
-
-        function checkResult() {
-            let roundWon = false;
-
-            for (let condition of winningConditions) {
-                let a = board[condition[0]];
-                let b = board[condition[1]];
-                let c = board[condition[2]];
-
-                if (a === "" || b === "" || c === "") continue;
-
-                if (a === b && b === c) {
-                    roundWon = true;
-                    break;
-                }
-            }
-
-            if (roundWon) {
-                isGameActive = false;
-                scores[currentPlayer]++;
-                updateScoreBoard();
-                playSound('win');
-                showModal(`O Jogador ${currentPlayer} venceu com estilo! 🎉`);
-                return;
-            }
-
-            if (!board.includes("")) {
-                isGameActive = false;
-                playSound('draw');
-                showModal(`Deu velha! Empate! 🤝`);
-                return;
-            }
-
-        }
-
-        function updateScoreBoard() {
-            document.getElementById("scoreX").textContent = scores.X;
-            document.getElementById("scoreO").textContent = scores.O;
-        }
-
-        function showModal(message) {
-            const modal = document.getElementById("modal");
-            document.getElementById("modalMessage").textContent = message;
-            modal.classList.remove("hidden");
-            modal.classList.add("flex");
-        }
-
-        function closeModalAndReset() {
-            document.getElementById("modal").classList.replace("flex", "hidden");
-            resetGame();
-        }
-
-        function resetGame() {
-            board = ["", "", "", "", "", "", "", "", ""];
-            currentPlayer = "X";
-            isGameActive = true;
-            document.getElementById("currentPlayer").textContent = currentPlayer;
-            document.getElementById("currentPlayer").className = "text-cyan-400 font-bold";
-
-            document.querySelectorAll(".cell").forEach(cell => {
-                cell.textContent = "";
-                cell.classList.remove('animate-pop', 'text-cyan-400', 'text-rose-400');
+        function createBoard() {
+            boardEl.innerHTML = "";
+            board.forEach((val, i) => {
+                const btn = document.createElement("button");
+                btn.className = "h-24 bg-slate-800 rounded-lg text-4xl font-bold flex items-center justify-center hover:bg-slate-700 transition";
+                btn.innerText = val;
+                btn.onclick = () => handleMove(i);
+                boardEl.appendChild(btn);
             });
         }
+
+        function handleMove(i) {
+            if (board[i] !== "") return;
+            board[i] = currentPlayer;
+            currentPlayer = currentPlayer === "X" ? "O" : "X";
+            createBoard();
+            checkWinner();
+        }
+
+        function checkWinner() {
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            for(let [a,b,c] of wins) {
+                if(board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    alert("Jogador " + board[a] + " venceu!");
+                    scores[board[a]]++;
+                    document.getElementById("score" + board[a]).innerText = scores[board[a]];
+                    reset();
+                }
+            }
+            if(!board.includes("")) { alert("Empate!"); reset(); }
+        }
+
+        function reset() { board = Array(9).fill(""); createBoard(); }
+        createBoard();
     </script>
 </body>
 </html>
