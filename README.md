@@ -42,51 +42,37 @@
         <button onclick="resetScore()" class="px-4 py-3 bg-gray-700 rounded-full text-sm hover:bg-gray-600 transition">Zerar Placar</button>
     </div>
 
-    <div id="ad-container" class="mt-8 w-full max-w-[320px] min-h-[250px] flex items-center justify-center"></div>
+    <!-- Container do Banner -->
+    <div id="ad-wrapper" class="mt-8 w-full max-w-[320px] min-h-[250px] flex items-center justify-center bg-gray-900 rounded-xl overflow-hidden border border-gray-700">
+        <div id="ad-container"></div>
+    </div>
 
     <script>
-        let board = ["", "", "", "", "", "", "", "", ""];
+        //        let board = Array(9).fill("");
         let currentPlayer = "X";
         let scoreX = 0, scoreO = 0;
         let gameActive = true;
 
-        function vsComputer() {
-            return document.getElementById('modeToggle').checked;
-        }
-
-        function labelOf(player) {
-            if (player === "O" && vsComputer()) return "Computador";
-            return player;
-        }
+        function vsComputer() { return document.getElementById('modeToggle').checked; }
+        function labelOf(player) { return (player === "O" && vsComputer()) ? "Computador" : player; }
 
         function play(index) {
             if (!gameActive || board[index] !== "") return;
-            if (vsComputer() && currentPlayer === "O") return; // impede clique durante a vez do computador
-
             board[index] = currentPlayer;
             render();
             if (checkEnd()) return;
-
             currentPlayer = currentPlayer === "X" ? "O" : "X";
             updateStatus();
-
-            if (vsComputer() && currentPlayer === "O" && gameActive) {
-                setTimeout(aiMove, 500);
-            }
+            if (vsComputer() && currentPlayer === "O") setTimeout(aiMove, 500);
         }
 
         function aiMove() {
-            if (!gameActive) return;
             let available = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
             if (available.length === 0) return;
-
             let move = available[Math.floor(Math.random() * available.length)];
             board[move] = "O";
             render();
-            if (checkEnd()) return;
-
-            currentPlayer = "X";
-            updateStatus();
+            if (!checkEnd()) { currentPlayer = "X"; updateStatus(); }
         }
 
         function render() {
@@ -94,62 +80,37 @@
             board.forEach((val, i) => {
                 cells[i].innerText = val;
                 cells[i].className = `cell bg-gray-700 rounded-lg text-4xl font-bold ${val === 'X' ? 'text-blue-400' : 'text-red-400'}`;
-                cells[i].disabled = val !== "" || !gameActive;
             });
         }
 
         function checkEnd() {
             const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-            const cells = document.querySelectorAll('.cell');
-
             for (let c of w) {
                 if (board[c[0]] && board[c[0]] === board[c[1]] && board[c[0]] === board[c[2]]) {
                     gameActive = false;
-                    const winner = board[c[0]];
-                    winner === 'X' ? scoreX++ : scoreO++;
+                    board[c[0]] === 'X' ? scoreX++ : scoreO++;
                     document.getElementById('placar').innerText = `X: ${scoreX} | O: ${scoreO}`;
-                    document.getElementById('status').innerText = `🏆 ${labelOf(winner)} venceu!`;
-                    render();
-                    c.forEach(i => cells[i].classList.add('winning-cell'));
+                    document.getElementById('status').innerText = `🏆 ${labelOf(board[c[0]])} venceu!`;
+                    c.forEach(i => document.querySelectorAll('.cell')[i].classList.add('winning-cell'));
                     return true;
                 }
             }
-
-            if (!board.includes("")) {
-                gameActive = false;
-                document.getElementById('status').innerText = "🤝 Empate!";
-                render();
-                return true;
-            }
-
+            if (!board.includes("")) { gameActive = false; document.getElementById('status').innerText = "🤝 Empate!"; return true; }
             return false;
         }
 
-        function updateStatus() {
-            if (!gameActive) return;
-            document.getElementById('status').innerText = `Vez de: ${labelOf(currentPlayer)}`;
-        }
+        function updateStatus() { document.getElementById('status').innerText = `Vez de: ${labelOf(currentPlayer)}`; }
+        function resetGame() { board = Array(9).fill(""); gameActive = true; currentPlayer = "X"; render(); updateStatus(); }
+        function resetScore() { scoreX = 0; scoreO = 0; document.getElementById('placar').innerText = `X: 0 | O: 0`; }
 
-        function resetGame() {
-            board = Array(9).fill("");
-            gameActive = true;
-            currentPlayer = "X";
-            render();
-            updateStatus();
-        }
-
-        function resetScore() {
-            scoreX = 0;
-            scoreO = 0;
-            document.getElementById('placar').innerText = `X: 0 | O: 0`;
-        }
-
-        resetGame();
-
-        const adContainer = document.getElementById('ad-container');
-        const s = document.createElement('script');
-        s.src = 'https://www.profitabledisplaynetwork.com/5935670?format=300x250';
-        adContainer.appendChild(s);
+        // Carregamento otimizado do anúncio
+        window.onload = () => {
+            const container = document.getElementById('ad-container');
+            const script = document.createElement('script');
+            script.src = 'https://www.profitabledisplaynetwork.com/5935670?format=300x250';
+            script.async = true;
+            container.appendChild(script);
+        };
     </script>
 </body>
 </html>
