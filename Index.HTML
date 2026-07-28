@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="qpEh8Rcr_HM1LLjMC3XLY12N9WHam1gzvBjFmZTEzjc" />
+    <title>Jogo da Velha PRO — Jogue Grátis Online</title>
+    <meta name="description" content="Jogue Jogo da Velha online grátis. Modo 2 jogadores ou contra o computador com IA imbatível. Rápido, simples e direto no navegador, sem instalar nada.">
+    <link rel="canonical" href="https://renatocastrofera.github.io/Jogo-Da-Velha10/">
+
+    <!-- Open Graph / redes sociais -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Jogo da Velha PRO — Jogue Grátis Online">
+    <meta property="og:description" content="Jogue Jogo da Velha online grátis. Modo 2 jogadores ou contra o computador com IA imbatível.">
+    <meta property="og:locale" content="pt_BR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Jogo da Velha PRO — Jogue Grátis Online">
+    <meta name="twitter:description" content="Jogue Jogo da Velha online grátis. Modo 2 jogadores ou contra o computador com IA imbatível.">
+
+    <!-- Dados estruturados (ajuda em resultados de busca) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoGame",
+      "name": "Jogo da Velha PRO",
+      "description": "Jogo da velha online grátis, 2 jogadores ou contra o computador com IA.",
+      "genre": "Puzzle",
+      "gamePlatform": "Web Browser",
+      "applicationCategory": "Game",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" }
+    }
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #111827; font-family: 'Inter', sans-serif; }
+        .cell { transition: all 0.2s ease; cursor: pointer; display: flex; align-items: center; justify-content: center; height: 80px; width: 80px; }
+        .cell:hover:not(:disabled) { background-color: #374151; }
+        .cell:disabled { cursor: not-allowed; opacity: 0.85; }
+        .winning-cell { background-color: #1d4ed8 !important; }
+        .modal-overlay { background-color: rgba(0,0,0,0.75); }
+    </style>
+</head>
+<body class="text-white flex flex-col items-center min-h-screen p-4">
+
+    <h1 class="text-3xl font-bold mb-6 text-blue-400 mt-4">Jogo da Velha PRO</h1>
+
+    <div class="flex flex-col gap-3 mb-6 w-full max-w-[270px]">
+        <label class="flex items-center gap-2 cursor-pointer bg-gray-800 p-3 rounded-lg border border-gray-700 justify-center">
+            <input type="checkbox" id="modeToggle" class="w-5 h-5" onchange="onModeChange()">
+            <span>Jogar contra Computador</span>
+        </label>
+
+        <select id="difficulty" onchange="resetGame()" class="hidden bg-gray-800 border border-gray-700 rounded-lg p-2 text-center">
+            <option value="facil">Fácil</option>
+            <option value="medio">Médio</option>
+            <option value="impossivel">Impossível</option>
+        </select>
+    </div>
+
+    <div id="placar" class="text-lg mb-2 font-semibold text-gray-400">X: 0 | O: 0 | Empates: 0</div>
+    <div id="status" class="text-lg mb-4 font-bold text-yellow-400 h-6 text-center"></div>
+
+    <div id="board" class="grid grid-cols-3 gap-2 bg-gray-800 p-3 rounded-xl shadow-2xl w-full max-w-[270px]">
+        <button class="cell bg-gray-700 rounded-lg text-4xl font-bold" onclick="play(0)"></button>
+        <button class="cell bg-gray-700 rounded-lg text-4xl font-bold" onclick="play(1)"></button>
+        <button class="cell bg-gray-700 rounded-lg text-4xl font-bold" onclick="play(2)"></button>
+        <button class="cell bg-gray-700 rounded-lg text-4xl font-bold" onclick="play(3)"></button>
+        <button class="cell bg-gray-700 rounded-lg text-4xl font-bold" onclick="play(4)"></button>
+        <button class="cell bg-gray-700 rounded-lg text-4xl font-bold" onclick="play(5)"></button>
+        <button class="cell bg-gray-700 rounded-lg text-4xl font-bold" onclick="play(6)"></button>
+        <button class="cell bg-gray-700 rounded-lg text-4xl font-bold" onclick="play(7)"></button>
+        <button class="cell bg-gray-700 rounded-lg text-4xl font-bold" onclick="play(8)"></button>
+    </div>
+
+    <div class="flex gap-3 mt-6">
+        <button onclick="resetGame()" class="px-8 py-3 bg-blue-600 rounded-full font-bold hover:bg-blue-500 transition shadow-lg">Reiniciar Partida</button>
+        <button onclick="resetScore()" class="px-4 py-3 bg-gray-700 rounded-full text-sm hover:bg-gray-600 transition">Zerar Placar</button>
+    </div>
+
+    <button onclick="shareWhatsApp()" class="mt-4 px-6 py-3 bg-green-600 rounded-full font-bold hover:bg-green-500 transition shadow-lg flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.148.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.29.173-1.414-.074-.124-.272-.198-.57-.347z"/><path d="M12.004 2c-5.514 0-9.997 4.483-9.997 9.997 0 1.763.463 3.485 1.343 5.003L2 22l5.117-1.34a9.96 9.96 0 004.887 1.246h.004c5.514 0 9.997-4.483 9.997-9.998 0-2.671-1.04-5.182-2.929-7.07A9.935 9.935 0 0012.004 2zm5.867 15.86a8.28 8.28 0 01-5.867 2.431h-.003a8.3 8.3 0 01-4.229-1.158l-.303-.18-3.037.796.81-2.96-.198-.304a8.284 8.284 0 01-1.27-4.428c0-4.583 3.73-8.313 8.317-8.313a8.26 8.26 0 015.878 2.436 8.26 8.26 0 012.435 5.876 8.286 8.286 0 01-2.533 5.804z"/></svg>
+        Desafiar um amigo
+    </button>
+
+    <!--
+        ===================== MONETIZAÇÃO =====================
+        A rede de anúncios anterior (profitabledisplaynetwork.com) foi
+        REMOVIDA por ser sinalizada como distribuidora de malware/phishing
+        (trust score 1/100). Nunca reintroduzir esse domínio ou similares
+        não verificados — isso pode fazer o Google Safe Browsing bloquear
+        o site inteiro e impedir aprovação em redes sérias como AdSense.
+
+        Rede ativa: Adsterra (banner 300x250, sem anúncios para adultos).
+        Zone/key: db4d2cba33bf7f393f5846a727270561 — gerenciar em
+        https://beta.publishers.adsterra.com/websites
+
+        Evolução futura: Google AdSense costuma pagar CPM melhor, mas em
+        2026 exige ~15-20 páginas de conteúdo próprio + política de
+        privacidade + histórico de alguns meses antes de aprovar. Vale
+        aplicar quando o site crescer além do jogo em si.
+        =========================================================
+    -->
+    <!--
+        REATIVADO em 28/07/2026 (2ª vez): pausado antes por redirect forçado
+        (cdn.pla3.com) e por carregar o domínio suspeito
+        realizationnewestfangs.com. Chamado ainda aberto no suporte Adsterra
+        (atendente Jenny, sem confirmação de correção) — reativado a pedido
+        do Renato para monitorar diretamente nos aparelhos dele se o
+        problema persiste. Se o redirect voltar a acontecer, comentar este
+        bloco de novo imediatamente.
+    -->
+    <div id="ad-wrapper" class="mt-8 w-full max-w-[320px] min-h-[250px] flex items-center justify-center bg-gray-900 rounded-xl overflow-hidden border border-gray-700">
+        <div id="ad-container">
+            <script>
+                atOptions = {
+                    'key' : 'db4d2cba33bf7f393f5846a727270561',
+                    'format' : 'iframe',
+                    'height' : 250,
+                    'width' : 300,
+                    'params' : {}
+                };
+            </script>
+            <script src="https://www.highperformanceformat.com/db4d2cba33bf7f393f5846a727270561/invoke.js"></script>
+        </div>
+    </div>
+
+    <!-- Modal de "pausa publicitária" — aparece a cada 3 partidas para aumentar impressões de anúncio sem atrapalhar a jogabilidade.
+         Reaproveita o mesmo bloco Adsterra (300x250) acima. Se quiser um formato diferente aqui (ex: Native Banner),
+         crie uma 2ª Ad Unit no painel Adsterra e troque o 'key' abaixo. -->
+    <div id="ad-break-modal" class="hidden fixed inset-0 modal-overlay flex items-center justify-center z-50 p-4">
+        <div class="bg-gray-800 rounded-xl p-5 w-full max-w-[320px] border border-gray-700 text-center">
+            <p class="text-sm text-gray-400 mb-3">Anúncio</p>
+            <div id="ad-container-break" class="min-h-[250px] flex items-center justify-center bg-gray-900 rounded-lg mb-4">
+                <!-- Anúncio pausado (ver comentário acima do #ad-wrapper) -->
+            </div>
+            <button onclick="closeAdBreak()" class="px-6 py-2 bg-blue-600 rounded-full font-bold hover:bg-blue-500 transition">Continuar jogando</button>
+        </div>
+    </div>
+
+    <script>
+        const WIN_LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+        let board = Array(9).fill("");
+        let currentPlayer = "X";
+        let scoreX = 0, scoreO = 0, scoreD = 0;
+        let gameActive = true;
+        let gamesFinished = Number(localStorage.getItem('ttt_gamesFinished') || 0);
+
+        function vsComputer() { return document.getElementById('modeToggle').checked; }
+        function difficulty() { return document.getElementById('difficulty').value; }
+        function labelOf(player) { return (player === "O" && vsComputer()) ? "Computador" : player; }
+
+        function onModeChange() {
+            document.getElementById('difficulty').classList.toggle('hidden', !vsComputer());
+            resetGame();
+        }
+
+        function play(index) {
+            if (!gameActive || board[index] !== "") return;
+            if (vsComputer() && currentPlayer === "O") return; // impede clique durante a vez do computador
+
+            board[index] = currentPlayer;
+            render();
+            if (checkEnd()) return;
+            currentPlayer = currentPlayer === "X" ? "O" : "X";
+            updateStatus();
+            if (vsComputer() && currentPlayer === "O" && gameActive) setTimeout(aiMove, 500);
+        }
+
+        function aiMove() {
+            if (!gameActive) return;
+            const available = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
+            if (available.length === 0) return;
+
+            let move;
+            const level = difficulty();
+            if (level === 'facil') {
+                move = available[Math.floor(Math.random() * available.length)];
+            } else if (level === 'medio') {
+                move = Math.random() < 0.5 ? bestMove() : available[Math.floor(Math.random() * available.length)];
+            } else {
+                move = bestMove(); // impossível: minimax puro, nunca perde
+            }
+
+            board[move] = "O";
+            render();
+            if (checkEnd()) return;
+            currentPlayer = "X";
+            updateStatus();
+        }
+
+        // ---- IA: minimax (imbatível no nível "Impossível") ----
+        function winnerOf(bd) {
+            for (const [a,b,c] of WIN_LINES) {
+                if (bd[a] && bd[a] === bd[b] && bd[a] === bd[c]) return bd[a];
+            }
+            if (!bd.includes("")) return "empate";
+            return null;
+        }
+
+        function minimax(bd, depth, isMaximizing) {
+            const result = winnerOf(bd);
+            if (result === "O") return 10 - depth;
+            if (result === "X") return depth - 10;
+            if (result === "empate") return 0;
+
+            if (isMaximizing) {
+                let best = -Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (bd[i] === "") {
+                        bd[i] = "O";
+                        best = Math.max(best, minimax(bd, depth + 1, false));
+                        bd[i] = "";
+                    }
+                }
+                return best;
+            } else {
+                let best = Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (bd[i] === "") {
+                        bd[i] = "X";
+                        best = Math.min(best, minimax(bd, depth + 1, true));
+                        bd[i] = "";
+                    }
+                }
+                return best;
+            }
+        }
+
+        function bestMove() {
+            let bestScore = -Infinity, move = -1;
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === "") {
+                    board[i] = "O";
+                    const score = minimax(board, 0, false);
+                    board[i] = "";
+                    if (score > bestScore) { bestScore = score; move = i; }
+                }
+            }
+            return move;
+        }
+
+        function render() {
+            const cells = document.querySelectorAll('.cell');
+            board.forEach((val, i) => {
+                cells[i].innerText = val;
+                cells[i].className = `cell bg-gray-700 rounded-lg text-4xl font-bold ${val === 'X' ? 'text-blue-400' : 'text-red-400'}`;
+                cells[i].disabled = val !== "" || !gameActive;
+            });
+        }
+
+        function checkEnd() {
+            const cells = document.querySelectorAll('.cell');
+            for (const c of WIN_LINES) {
+                if (board[c[0]] && board[c[0]] === board[c[1]] && board[c[0]] === board[c[2]]) {
+                    gameActive = false;
+                    board[c[0]] === 'X' ? scoreX++ : scoreO++;
+                    saveScore();
+                    document.getElementById('status').innerText = `🏆 ${labelOf(board[c[0]])} venceu!`;
+                    render();
+                    c.forEach(i => cells[i].classList.add('winning-cell'));
+                    onGameFinished();
+                    return true;
+                }
+            }
+            if (!board.includes("")) {
+                gameActive = false;
+                scoreD++;
+                saveScore();
+                document.getElementById('status').innerText = "🤝 Empate!";
+                render();
+                onGameFinished();
+                return true;
+            }
+            return false;
+        }
+
+        function onGameFinished() {
+            gamesFinished++;
+            localStorage.setItem('ttt_gamesFinished', gamesFinished);
+            if (gamesFinished % 3 === 0) {
+                document.getElementById('ad-break-modal').classList.remove('hidden');
+            }
+        }
+
+        function closeAdBreak() {
+            document.getElementById('ad-break-modal').classList.add('hidden');
+        }
+
+        function updateStatus() {
+            if (!gameActive) return;
+            document.getElementById('status').innerText = `Vez de: ${labelOf(currentPlayer)}`;
+        }
+
+        function updatePlacar() {
+            document.getElementById('placar').innerText = `X: ${scoreX} | O: ${scoreO} | Empates: ${scoreD}`;
+        }
+
+        function saveScore() {
+            localStorage.setItem('ttt_scoreX', scoreX);
+            localStorage.setItem('ttt_scoreO', scoreO);
+            localStorage.setItem('ttt_scoreD', scoreD);
+            updatePlacar();
+        }
+
+        function loadScore() {
+            scoreX = Number(localStorage.getItem('ttt_scoreX') || 0);
+            scoreO = Number(localStorage.getItem('ttt_scoreO') || 0);
+            scoreD = Number(localStorage.getItem('ttt_scoreD') || 0);
+            updatePlacar();
+        }
+
+        function resetGame() {
+            board = Array(9).fill("");
+            gameActive = true;
+            currentPlayer = "X";
+            render();
+            updateStatus();
+        }
+
+        function resetScore() {
+            scoreX = 0;
+            scoreO = 0;
+            scoreD = 0;
+            saveScore();
+        }
+
+        function shareWhatsApp() {
+            const url = 'https://renatocastrofera.github.io/Jogo-Da-Velha10/';
+            const texto = `Te desafio no Jogo da Velha! IA imbatível no modo Impossível 😏 Bora ver se você me vence: ${url}`;
+            const link = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+            window.open(link, '_blank');
+        }
+
+        loadScore();
+        resetGame();
+    </script>
+</body>
+</html>
