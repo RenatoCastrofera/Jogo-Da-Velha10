@@ -3,7 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo da Velha PRO</title>
+    <title>Jogo da Velha PRO — Jogue Grátis Online</title>
+    <meta name="description" content="Jogue Jogo da Velha online grátis. Modo 2 jogadores ou contra o computador com IA imbatível. Rápido, simples e direto no navegador, sem instalar nada.">
+    <link rel="canonical" href="https://renatocastrofera.github.io/Jogo-Da-Velha10/">
+
+    <!-- Open Graph / redes sociais -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Jogo da Velha PRO — Jogue Grátis Online">
+    <meta property="og:description" content="Jogue Jogo da Velha online grátis. Modo 2 jogadores ou contra o computador com IA imbatível.">
+    <meta property="og:locale" content="pt_BR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Jogo da Velha PRO — Jogue Grátis Online">
+    <meta name="twitter:description" content="Jogue Jogo da Velha online grátis. Modo 2 jogadores ou contra o computador com IA imbatível.">
+
+    <!-- Dados estruturados (ajuda em resultados de busca) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoGame",
+      "name": "Jogo da Velha PRO",
+      "description": "Jogo da velha online grátis, 2 jogadores ou contra o computador com IA.",
+      "genre": "Puzzle",
+      "gamePlatform": "Web Browser",
+      "applicationCategory": "Game",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" }
+    }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #111827; font-family: 'Inter', sans-serif; }
@@ -11,18 +39,27 @@
         .cell:hover:not(:disabled) { background-color: #374151; }
         .cell:disabled { cursor: not-allowed; opacity: 0.85; }
         .winning-cell { background-color: #1d4ed8 !important; }
+        .modal-overlay { background-color: rgba(0,0,0,0.75); }
     </style>
 </head>
 <body class="text-white flex flex-col items-center min-h-screen p-4">
 
     <h1 class="text-3xl font-bold mb-6 text-blue-400 mt-4">Jogo da Velha PRO</h1>
 
-    <label class="flex items-center gap-2 cursor-pointer bg-gray-800 p-3 rounded-lg border border-gray-700 mb-6 w-full max-w-[270px] justify-center">
-        <input type="checkbox" id="modeToggle" class="w-5 h-5" onchange="resetGame()">
-        <span>Jogar contra Computador</span>
-    </label>
+    <div class="flex flex-col gap-3 mb-6 w-full max-w-[270px]">
+        <label class="flex items-center gap-2 cursor-pointer bg-gray-800 p-3 rounded-lg border border-gray-700 justify-center">
+            <input type="checkbox" id="modeToggle" class="w-5 h-5" onchange="onModeChange()">
+            <span>Jogar contra Computador</span>
+        </label>
 
-    <div id="placar" class="text-lg mb-2 font-semibold text-gray-400">X: 0 | O: 0</div>
+        <select id="difficulty" onchange="resetGame()" class="hidden bg-gray-800 border border-gray-700 rounded-lg p-2 text-center">
+            <option value="facil">Fácil</option>
+            <option value="medio">Médio</option>
+            <option value="impossivel">Impossível</option>
+        </select>
+    </div>
+
+    <div id="placar" class="text-lg mb-2 font-semibold text-gray-400">X: 0 | O: 0 | Empates: 0</div>
     <div id="status" class="text-lg mb-4 font-bold text-yellow-400 h-6 text-center"></div>
 
     <div id="board" class="grid grid-cols-3 gap-2 bg-gray-800 p-3 rounded-xl shadow-2xl w-full max-w-[270px]">
@@ -42,19 +79,51 @@
         <button onclick="resetScore()" class="px-4 py-3 bg-gray-700 rounded-full text-sm hover:bg-gray-600 transition">Zerar Placar</button>
     </div>
 
-    <!-- Container do Banner -->
-    <div id="ad-wrapper" class="mt-8 w-full max-w-[320px] min-h-[250px] flex items-center justify-center bg-gray-900 rounded-xl overflow-hidden border border-gray-700">
-        <div id="ad-container"></div>
+    <!--
+        ===================== MONETIZAÇÃO =====================
+        A rede de anúncios anterior (profitabledisplaynetwork.com) foi
+        REMOVIDA por ser sinalizada como distribuidora de malware/phishing
+        (trust score 1/100). Nunca reintroduzir esse domínio ou similares
+        não verificados — isso pode fazer o Google Safe Browsing bloquear
+        o site inteiro e impedir aprovação em redes sérias como AdSense.
+
+        Próximo passo: aplicar para o Google AdSense (https://adsense.google.com)
+        ou uma rede especializada em jogos HTML5 (ex: GameDistribution,
+        AdInPlay) e colar o script/slot fornecido dentro de #ad-container
+        e #ad-container-break abaixo. Requisitos comuns: site com HTTPS,
+        política de privacidade, e algumas semanas de tráfego orgânico.
+        =========================================================
+    -->
+    <div id="ad-wrapper" class="mt-8 w-full max-w-[320px] min-h-[100px] flex items-center justify-center bg-gray-900 rounded-xl overflow-hidden border border-gray-700 text-xs text-gray-600">
+        <div id="ad-container">Espaço reservado para anúncio (banner)</div>
+    </div>
+
+    <!-- Modal de "pausa publicitária" — aparece a cada 3 partidas para aumentar impressões de anúncio sem atrapalhar a jogabilidade -->
+    <div id="ad-break-modal" class="hidden fixed inset-0 modal-overlay flex items-center justify-center z-50 p-4">
+        <div class="bg-gray-800 rounded-xl p-5 w-full max-w-[320px] border border-gray-700 text-center">
+            <p class="text-sm text-gray-400 mb-3">Anúncio</p>
+            <div id="ad-container-break" class="min-h-[100px] flex items-center justify-center bg-gray-900 rounded-lg mb-4 text-xs text-gray-600">Espaço reservado para anúncio</div>
+            <button onclick="closeAdBreak()" class="px-6 py-2 bg-blue-600 rounded-full font-bold hover:bg-blue-500 transition">Continuar jogando</button>
+        </div>
     </div>
 
     <script>
+        const WIN_LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
         let board = Array(9).fill("");
         let currentPlayer = "X";
-        let scoreX = 0, scoreO = 0;
+        let scoreX = 0, scoreO = 0, scoreD = 0;
         let gameActive = true;
+        let gamesFinished = Number(localStorage.getItem('ttt_gamesFinished') || 0);
 
         function vsComputer() { return document.getElementById('modeToggle').checked; }
+        function difficulty() { return document.getElementById('difficulty').value; }
         function labelOf(player) { return (player === "O" && vsComputer()) ? "Computador" : player; }
+
+        function onModeChange() {
+            document.getElementById('difficulty').classList.toggle('hidden', !vsComputer());
+            resetGame();
+        }
 
         function play(index) {
             if (!gameActive || board[index] !== "") return;
@@ -70,14 +139,75 @@
 
         function aiMove() {
             if (!gameActive) return;
-            let available = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
+            const available = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
             if (available.length === 0) return;
-            let move = available[Math.floor(Math.random() * available.length)];
+
+            let move;
+            const level = difficulty();
+            if (level === 'facil') {
+                move = available[Math.floor(Math.random() * available.length)];
+            } else if (level === 'medio') {
+                move = Math.random() < 0.5 ? bestMove() : available[Math.floor(Math.random() * available.length)];
+            } else {
+                move = bestMove(); // impossível: minimax puro, nunca perde
+            }
+
             board[move] = "O";
             render();
             if (checkEnd()) return;
             currentPlayer = "X";
             updateStatus();
+        }
+
+        // ---- IA: minimax (imbatível no nível "Impossível") ----
+        function winnerOf(bd) {
+            for (const [a,b,c] of WIN_LINES) {
+                if (bd[a] && bd[a] === bd[b] && bd[a] === bd[c]) return bd[a];
+            }
+            if (!bd.includes("")) return "empate";
+            return null;
+        }
+
+        function minimax(bd, depth, isMaximizing) {
+            const result = winnerOf(bd);
+            if (result === "O") return 10 - depth;
+            if (result === "X") return depth - 10;
+            if (result === "empate") return 0;
+
+            if (isMaximizing) {
+                let best = -Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (bd[i] === "") {
+                        bd[i] = "O";
+                        best = Math.max(best, minimax(bd, depth + 1, false));
+                        bd[i] = "";
+                    }
+                }
+                return best;
+            } else {
+                let best = Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (bd[i] === "") {
+                        bd[i] = "X";
+                        best = Math.min(best, minimax(bd, depth + 1, true));
+                        bd[i] = "";
+                    }
+                }
+                return best;
+            }
+        }
+
+        function bestMove() {
+            let bestScore = -Infinity, move = -1;
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === "") {
+                    board[i] = "O";
+                    const score = minimax(board, 0, false);
+                    board[i] = "";
+                    if (score > bestScore) { bestScore = score; move = i; }
+                }
+            }
+            return move;
         }
 
         function render() {
@@ -90,31 +220,64 @@
         }
 
         function checkEnd() {
-            const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
             const cells = document.querySelectorAll('.cell');
-            for (let c of w) {
+            for (const c of WIN_LINES) {
                 if (board[c[0]] && board[c[0]] === board[c[1]] && board[c[0]] === board[c[2]]) {
                     gameActive = false;
                     board[c[0]] === 'X' ? scoreX++ : scoreO++;
-                    document.getElementById('placar').innerText = `X: ${scoreX} | O: ${scoreO}`;
+                    saveScore();
                     document.getElementById('status').innerText = `🏆 ${labelOf(board[c[0]])} venceu!`;
                     render();
                     c.forEach(i => cells[i].classList.add('winning-cell'));
+                    onGameFinished();
                     return true;
                 }
             }
             if (!board.includes("")) {
                 gameActive = false;
+                scoreD++;
+                saveScore();
                 document.getElementById('status').innerText = "🤝 Empate!";
                 render();
+                onGameFinished();
                 return true;
             }
             return false;
         }
 
+        function onGameFinished() {
+            gamesFinished++;
+            localStorage.setItem('ttt_gamesFinished', gamesFinished);
+            if (gamesFinished % 3 === 0) {
+                document.getElementById('ad-break-modal').classList.remove('hidden');
+            }
+        }
+
+        function closeAdBreak() {
+            document.getElementById('ad-break-modal').classList.add('hidden');
+        }
+
         function updateStatus() {
             if (!gameActive) return;
             document.getElementById('status').innerText = `Vez de: ${labelOf(currentPlayer)}`;
+        }
+
+        function updatePlacar() {
+            document.getElementById('placar').innerText = `X: ${scoreX} | O: ${scoreO} | Empates: ${scoreD}`;
+        }
+
+        function saveScore() {
+            localStorage.setItem('ttt_scoreX', scoreX);
+            localStorage.setItem('ttt_scoreO', scoreO);
+            localStorage.setItem('ttt_scoreD', scoreD);
+            updatePlacar();
+        }
+
+        function loadScore() {
+            scoreX = Number(localStorage.getItem('ttt_scoreX') || 0);
+            scoreO = Number(localStorage.getItem('ttt_scoreO') || 0);
+            scoreD = Number(localStorage.getItem('ttt_scoreD') || 0);
+            updatePlacar();
         }
 
         function resetGame() {
@@ -128,19 +291,12 @@
         function resetScore() {
             scoreX = 0;
             scoreO = 0;
-            document.getElementById('placar').innerText = `X: 0 | O: 0`;
+            scoreD = 0;
+            saveScore();
         }
 
+        loadScore();
         resetGame();
-
-        // Carregamento otimizado do anúncio
-        window.onload = () => {
-            const container = document.getElementById('ad-container');
-            const script = document.createElement('script');
-            script.src = 'https://www.profitabledisplaynetwork.com/5935670?format=300x250';
-            script.async = true;
-            container.appendChild(script);
-        };
     </script>
 </body>
 </html>
