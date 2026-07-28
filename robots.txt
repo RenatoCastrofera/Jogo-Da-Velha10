@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://renatocastrofera.github.io/Jogo-Da-Velha10/sitemap.xml
